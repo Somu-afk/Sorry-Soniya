@@ -273,3 +273,169 @@
     </script>
 </body>
 </html>
+            padding: 16px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            width: 100%;
+            color: white;
+            position: relative;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            z-index: 20;
+        }
+
+        /* YES Button Pulse */
+        .btn-yes {
+            background: var(--yes-grad);
+            animation: pulseGlow 2s infinite; 
+        }
+        @keyframes pulseGlow {
+            0% { box-shadow: 0 0 0 0 rgba(56, 239, 125, 0.7); transform: scale(1); }
+            70% { box-shadow: 0 0 0 15px rgba(56, 239, 125, 0); transform: scale(1.02); }
+            100% { box-shadow: 0 0 0 0 rgba(56, 239, 125, 0); transform: scale(1); }
+        }
+
+        /* NO Button Shake */
+        .btn-no {
+            background: var(--no-grad);
+            z-index: 1000;
+            animation: nervousShake 0.4s infinite; 
+        }
+        @keyframes nervousShake {
+            0% { transform: rotate(0deg); } 25% { transform: rotate(2deg); } 50% { transform: rotate(0deg); } 75% { transform: rotate(-2deg); } 100% { transform: rotate(0deg); }
+        }
+
+        .btn-primary { background: linear-gradient(45deg, #a18cd1, #fbc2eb); transition: transform 0.2s; }
+
+        /* --- ICONS --- */
+        .sticker-icon { font-size: 65px; margin-bottom: 10px; animation: bounce 2s infinite; }
+        @keyframes bounce { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-10px);} }
+
+        .floater {
+            position: absolute;
+            bottom: -10%;
+            font-size: 28px;
+            animation: floatUp 7s linear forwards;
+            opacity: 0.7;
+            z-index: 1;
+        }
+        @keyframes floatUp { to { transform: translateY(-120vh) rotate(360deg); opacity: 0; } }
+
+        /* --- POP ANIMATION --- */
+        @keyframes pop { 0% { transform: scale(1); } 50% { transform: scale(0.9); } 100% { transform: scale(1); } }
+        .animate-pop { animation: pop 0.3s ease forwards; }
+
+        /* --- CONFETTI --- */
+        .confetti { position: absolute; width: 10px; height: 10px; animation: fall 3s linear forwards; z-index: 20; }
+        @keyframes fall { to { transform: translateY(100vh) rotate(720deg); opacity: 0; } }
+    </style>
+</head>
+<body>
+
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+
+    <div class="floating-bg" id="bgContainer"></div>
+
+    <div id="page1" class="glass-card">
+        <div class="sticker-icon">👋</div>
+        <h1>Hey सोNIYA!</h1>
+        <p>Your <strong>Bestie</strong> has realized his mistake...<br>I have a confession.</p>
+        <button class="btn btn-primary" onclick="triggerNext(2, this)">Open Message 💌</button>
+    </div>
+
+    <div id="page2" class="glass-card hidden">
+        <div class="sticker-icon">🙊</div>
+        <h1>I'm Sorry!</h1>
+        
+        <p>I shouldn't have sent that <strong>weird sticker</strong>. <br>Mai Tujhe Gussa nhi Dilana Chahta tha Sorry 😣</p>
+        
+        <p>Sorry Mai Tujhe Manane nhi aaya Cuz Mujhe Pta nhi tha Tu Gussa hai 😔</p>
+        
+        <p class="sub-text">Promise: Next time only cute stickers! Pakka! 🥺</p>
+        
+        <h2>Maaf kardo na?</h2>
+        
+        <div class="btn-group">
+            <button class="btn btn-yes" id="yesBtn" onclick="triggerNext(3, this)">Chal Maaf Kiya 💖</button>
+            <button class="btn btn-no" id="noBtn">Nahi Karungi! 😤</button>
+        </div>
+    </div>
+
+    <div id="page3" class="glass-card hidden">
+        <div class="sticker-icon">🎉</div>
+        <h1>YAYYY!</h1>
+        <p>You are the <strong>Bestest Friend</strong> in the whole world!</p>
+        <p>Big virtual hug incoming! 🫂✨</p>
+    </div>
+
+    <script>
+        // 1. Navigation with Pop Effect
+        function triggerNext(pageNumber, btn) {
+            btn.classList.add('animate-pop');
+            setTimeout(() => {
+                document.querySelectorAll('.glass-card').forEach(c => {
+                    c.classList.add('hidden');
+                    c.style.animation = 'none'; // reset anim
+                    c.offsetHeight; /* trigger reflow */
+                    c.style.animation = null; 
+                });
+                document.getElementById('page' + pageNumber).classList.remove('hidden');
+                if(pageNumber === 3) startConfetti();
+            }, 300);
+        }
+
+        // 2. The Runaway Logic
+        const noBtn = document.getElementById('noBtn');
+        const yesBtn = document.getElementById('yesBtn');
+        let scale = 1;
+
+        function moveButton(e) {
+            if (e.type === 'touchstart') e.preventDefault();
+            
+            const x = Math.random() * (window.innerWidth - noBtn.offsetWidth - 20);
+            const y = Math.random() * (window.innerHeight - noBtn.offsetHeight - 20);
+            
+            noBtn.style.position = 'fixed';
+            noBtn.style.left = Math.max(10, x) + 'px';
+            noBtn.style.top = Math.max(10, y) + 'px';
+
+            scale += 0.2;
+            yesBtn.style.transform = `scale(${scale})`;
+        }
+
+        noBtn.addEventListener('mouseover', moveButton);
+        noBtn.addEventListener('touchstart', moveButton);
+
+        // 3. Floating Background Emojis
+        function createEmoji() {
+            const container = document.getElementById('bgContainer');
+            const el = document.createElement('div');
+            const icons = ['🥺', '🌸', '✨', '💖', '🙊', '🦋', '💐', '💌'];
+            el.className = 'floater';
+            el.innerHTML = icons[Math.floor(Math.random() * icons.length)];
+            el.style.left = Math.random() * 100 + 'vw';
+            el.style.animationDuration = (Math.random() * 5 + 8) + 's';
+            container.appendChild(el);
+            setTimeout(() => el.remove(), 13000);
+        }
+        setInterval(createEmoji, 500);
+
+        // 4. Confetti Explosion
+        function startConfetti() {
+            const colors = ['#ff758c', '#a8e063', '#a18cd1', '#ff6a00', '#4facfe'];
+            for(let i=0; i<80; i++) {
+                const conf = document.createElement('div');
+                conf.className = 'confetti';
+                conf.style.left = Math.random() * 100 + 'vw';
+                conf.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                conf.style.animationDuration = (Math.random() * 3 + 2) + 's';
+                document.body.appendChild(conf);
+                setTimeout(() => conf.remove(), 5000);
+            }
+        }
+    </script>
+</body>
+</html>
